@@ -182,7 +182,7 @@ class ReportGenerator:
         header_html = ''.join(f'<th>{header}</th>' for header in headers)
 
         rows_html = ''.join(
-            '<tr>' + ''.join(f'<td>{value}</td>' for value in row.values()) + '</tr>' 
+            '<tr>' + ''.join(f'<td>{value}</td>' for value in row.values()) + '</tr>'
             for row in data
         )
 
