@@ -117,7 +117,9 @@ class ReportGenerator:
         process_failures = self.process_failure_report()
         process_status = self.process_status_report()
 
-        alert_flag = bool(missed_runs or overdue_processes)
+        alert_flag = bool(missed_runs or overdue_processes or process_failures)
+
+        print(alert_flag)
 
         html_template = """
         <html>
@@ -127,13 +129,13 @@ class ReportGenerator:
                 border: 1px solid black;
                 border-collapse: collapse;
                 padding: 8px;
-                font-size: 14px;  /* Mindre fontstørrelse for tabeller */
+                font-size: 14px;
             }
             h3 {
-                font-size: 16px;  /* Mindre fontstørrelse for overskrifter */
+                font-size: 16px;
             }
             body {
-                font-size: 12px;  /* Generel fontstørrelse for hele dokumentet */
+                font-size: 12px;
             }
         </style>
         </head>
@@ -207,13 +209,13 @@ class ReportGenerator:
             msg['X-MSMail-Priority'] = 'High'
             msg['Importance'] = 'High'
 
-        msg['From'] = self.email_settings['from_email']
-        msg['To'] = self.email_settings['to_email']
-        msg['Subject'] = subject
+            msg['From'] = self.email_settings['from_email']
+            msg['To'] = self.email_settings['to_email']
+            msg['Subject'] = subject
 
-        msg.attach(MIMEText(html_content, 'html'))
+            msg.attach(MIMEText(html_content, 'html'))
 
-        with smtplib.SMTP(self.email_settings['smtp_server'], self.email_settings['smtp_port']) as server:
-            server.starttls()
-            server.send_message(msg)
-            print(f"Email sent to {self.email_settings['to_email']}.")
+            with smtplib.SMTP(self.email_settings['smtp_server'], self.email_settings['smtp_port']) as server:
+                server.starttls()
+                server.send_message(msg)
+                self.orchestrator_connection.log_trace(f"Email sent to {self.email_settings['to_email']}.")
