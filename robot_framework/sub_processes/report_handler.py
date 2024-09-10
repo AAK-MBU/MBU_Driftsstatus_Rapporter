@@ -179,18 +179,14 @@ class ReportGenerator:
             return "<p>Ingen data tilgængelig.</p>"
 
         headers = data[0].keys()
-        html_table = '<table><thead><tr>'
-        for header in headers:
-            html_table += f'<th>{header}</th>'
-        html_table += '</tr></thead><tbody>'
+        header_html = ''.join(f'<th>{header}</th>' for header in headers)
 
-        for row in data:
-            html_table += '<tr>'
-            for value in row.values():
-                html_table += f'<td>{value}</td>'
-            html_table += '</tr>'
+        rows_html = ''.join(
+            '<tr>' + ''.join(f'<td>{value}</td>' for value in row.values()) + '</tr>' 
+            for row in data
+        )
 
-        html_table += '</tbody></table>'
+        html_table = f'<table><thead><tr>{header_html}</tr></thead><tbody>{rows_html}</tbody></table>'
         return html_table
 
     def send_email(self, html_content):
