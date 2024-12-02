@@ -61,7 +61,7 @@ class ReportGenerator:
 
     def process_failure_report(self):
         """
-        Generate a report of processes that failed in the last 7 days.
+        Generate a report of processes that failed in the last 3 days.
 
         :return: A list of dictionaries containing the report data for failed processes.
         """
@@ -69,7 +69,7 @@ class ReportGenerator:
             SELECT t.trigger_name, t.process_name, t.last_run, t.process_status
             FROM [RPA].[dbo].[Triggers] t
             WHERE t.process_status = 'Failed'
-              AND t.last_run > DATEADD(day, -7, GETDATE())
+              AND t.last_run > DATEADD(day, -3, GETDATE())
             ORDER BY trigger_name
         """
         return self.fetch_data(query)
@@ -112,14 +112,13 @@ class ReportGenerator:
         :return: A tuple containing the generated HTML content and an alert flag indicating
                  whether there are any missed or overdue processes.
         """
-        missed_runs = self.missed_runs_report()
-        overdue_processes = self.overdue_processes_report()
+        # missed_runs = self.missed_runs_report()
+        # overdue_processes = self.overdue_processes_report()
         process_failures = self.process_failure_report()
         process_status = self.process_status_report()
 
-        alert_flag = bool(missed_runs or overdue_processes or process_failures)
-
-        print(alert_flag)
+        # alert_flag = bool(missed_runs or overdue_processes or process_failures)
+        alert_flag = bool(process_failures)
 
         html_template = """
         <html>
@@ -140,30 +139,34 @@ class ReportGenerator:
         </style>
         </head>
         <body>
+        <!--
             <h3>Manglende kørsler</h3>
             {{ missed_runs_table | safe }}
         <br/><br/>
-            <h3>Fejlede processer (Sidste 7 Dage)</h3>
+        -->
+            <h3>Fejlede processer (Sidste 3 Dage)</h3>
             {{ process_failures_table | safe }}
         <br/><br/>
+        <!--
             <h3>Forsinkede processer</h3>
             {{ overdue_processes_table | safe }}
         <br/><br/>
+        -->
             <h3>Processtatus</h3>
             {{ process_status_table | safe }}
         </body>
         </html>
         """
 
-        missed_runs_table = self.convert_to_html_table(missed_runs)
-        overdue_processes_table = self.convert_to_html_table(overdue_processes)
+        # missed_runs_table = self.convert_to_html_table(missed_runs)
+        # overdue_processes_table = self.convert_to_html_table(overdue_processes)
         process_failures_table = self.convert_to_html_table(process_failures)
         process_status_table = self.convert_to_html_table(process_status)
 
         template = Template(html_template)
         html_content = template.render(
-            missed_runs_table=missed_runs_table,
-            overdue_processes_table=overdue_processes_table,
+            # missed_runs_table=missed_runs_table,
+            # overdue_processes_table=overdue_processes_table,
             process_failures_table=process_failures_table,
             process_status_table=process_status_table,
         )
